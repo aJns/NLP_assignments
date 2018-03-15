@@ -1,0 +1,213 @@
+\section*{6.1}
+
+I take the phrase ``Assume\dots and equal prior probabilities'' to mean that
+\(P(+) = P(-)\).
+
+Thus for each class we just multiply the word probabilities to get the
+probability of that class.
+\begin{equation}
+  \begin{aligned}
+    P(+) = 0.09 \times 0.07 \times 0.29 \times 0.04 \times 0.08 =
+    \num{5.8464e-6} \\
+    P(-) = 0.16 \times 0.06 \times 0.06 \times 0.15 \times 0.11 = \num{9.5040e-6}
+  \end{aligned}
+\end{equation}
+
+As we can see, the Naive Bayes predicts the class to be negative.
+
+
+\section*{6.2}
+
+\hl{NOTE:\@ It seems that I used binary naive bayes in this exercise already, I
+hope that's okay}
+
+\vspace{1cm}
+
+We'll denote the ``comedy'' class probability with \(P(C)\) and the ``action''
+with \(P(A)\).
+
+The priors are
+\begin{equation}
+  \begin{aligned}
+    P(C) = \frac{2}{5} \\
+    P(A) = \frac{3}{5}
+  \end{aligned}
+\end{equation}
+
+The total number of unique words that appear in all the documents is
+\( 3 + 3 + 1 + 0 + 0 = 7 \).
+The number of unique words in comedy is \( 3 + 2 = 5 \).
+In action \( 3 + 1 + 2 = 6 \)
+
+The equation for determining the class probability of a word is
+\begin{equation}
+  P(\text{word}|\text{class}) = \frac{\text{occurrences} + 1}{\text{unique
+  occurrences in the class} + \text{sum of all unique occurrences}}
+\end{equation}
+This probability is then multiplied by the prior to get the final probability.
+
+The test document is
+\begin{verbatim}
+D = fast, couple, shoot, fly
+\end{verbatim}
+
+For comedy
+\begin{equation}
+  \begin{split}
+    P(\text{fast}|C) = \frac{1+1}{5+7} = \frac{2}{12} \\
+    P(\text{couple}|C) = \frac{1+1}{5+7} = \frac{2}{12} \\
+    P(\text{shoot}|C) = \frac{0+1}{5+7} = \frac{1}{12} \\
+    P(\text{fly}|C) = \frac{1+1}{5+7} = \frac{2}{12}
+  \end{split}
+\end{equation}
+
+For action
+\begin{equation}
+  \begin{split}
+    P(\text{fast}|A) = \frac{1+1}{6+7} = \frac{2}{13} \\
+    P(\text{couple}|A) = \frac{0+1}{6+7} = \frac{1}{13} \\
+    P(\text{shoot}|A) = \frac{1+1}{6+7} = \frac{2}{13} \\
+    P(\text{fly}|A) = \frac{1+1}{6+7} = \frac{2}{13}
+  \end{split}
+\end{equation}
+
+Final probabilities
+\begin{equation}
+  \begin{split}
+    P(C)P(D|C) = \frac{2}{5} \times \frac{2^3 \times 1}{12^4} = \frac{1}{6480}
+    \approx \num{1.5432e-4}\\
+    P(A)P(D|A) = \frac{3}{5} \times \frac{2^3 \times 1}{13^4} =
+    \frac{24}{142805} \approx \num{1.6806e-4}
+  \end{split}
+\end{equation}
+
+So the predicted genre for the test document is action.
+         
+         
+\section*{6.3}
+Priors are the same with both methods.
+\begin{equation}
+  \begin{split}
+    P(+) = \frac{2}{5} \\
+    P(-) = \frac{3}{5}
+  \end{split}
+\end{equation}
+
+The test sentence:
+\begin{verbatim}
+A good, good plot and great characters, but poor acting
+\end{verbatim}
+
+Because our training set only contains the words ``good'', ``poor'' and
+``great'', the test sentence is modified to the form:
+\begin{verbatim}
+good good great poor
+\end{verbatim}
+
+\subsection*{Naive Bayes}
+Total word occurrences: 23 \\
+Positive word occurrences: 9 \\
+Negative word occurrences: 14
+
+For the positive class
+\begin{equation}
+  \begin{split}
+    P(\text{good}|+) = \frac{3+1}{9+23} = \frac{4}{32} \\
+    P(\text{great}|+) = \frac{5+1}{9+23} = \frac{6}{32} \\
+    P(\text{poor}|+) = \frac{1+1}{9+23} = \frac{2}{32}
+  \end{split}
+\end{equation}
+
+For the negative class
+\begin{equation}
+  \begin{split}
+    P(\text{good}|-) = \frac{2+1}{14+23} = \frac{3}{37} \\
+    P(\text{great}|-) = \frac{2+1}{14+23} = \frac{3}{37} \\
+    P(\text{poor}|-) = \frac{10+1}{14+23} = \frac{11}{37}
+  \end{split}
+\end{equation}
+
+Final probabilities (noting that ``good'' occurs twice)
+\begin{equation}
+  \begin{split}
+    P(+)P(S|+) = \frac{2}{5} \times \frac{4 \times 4 \times 6 \times 2}{32^4} =
+    \frac{3}{40960} \approx \num{7.3242e-5} \\
+    P(-)P(S|-) = \frac{3}{5} \times \frac{3 \times 3 \times 3 \times 11}{37^4} 
+    \approx \num{9.5083e-5}
+  \end{split}
+\end{equation}
+
+Which means that the naive bayes recognizes this as a negative review.
+
+\subsection*{Binarized Naive Bayes}
+Binarized NB is almost the same, both we clip word counts in a document at 1.
+
+Total word occurrences: 11 \\
+Positive word occurrences: 4 \\
+Negative word occurrences: 7
+
+For the positive class
+\begin{equation}
+  \begin{split}
+    P(\text{good}|+) = \frac{1+1}{4+11} = \frac{2}{15} \\
+    P(\text{great}|+) = \frac{2+1}{4+11} = \frac{3}{15} \\
+    P(\text{poor}|+) = \frac{1+1}{4+11} = \frac{2}{15}
+  \end{split}
+\end{equation}
+
+For the negative class
+\begin{equation}
+  \begin{split}
+    P(\text{good}|-) = \frac{2+1}{7+11} = \frac{3}{18} \\
+    P(\text{great}|-) = \frac{1+1}{7+11} = \frac{2}{18} \\
+    P(\text{poor}|-) = \frac{3+1}{7+11} = \frac{4}{18}
+  \end{split}
+\end{equation}
+
+Final probabilities (noting that ``good'' occurs twice)
+\begin{equation}
+  \begin{split}
+    P(+)P(S|+) = \frac{2}{5} \times \frac{2 \times 2 \times 3 \times 2}{15^4} =
+    \frac{16}{84375} \approx \num{1.8963e-4} \\
+    P(-)P(S|-) = \frac{3}{5} \times \frac{3 \times 3 \times 2 \times 4}{18^4} =
+    \frac{1}{2430} \approx \num{4.1152e-4}
+  \end{split}
+\end{equation}
+
+So, even the Binarized NB recognizes this as a negative review. I would guess
+this to be because of the prior bias to negative reviews, and the fact that
+good occurs twice in the negative reviews, and twice in the test review.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

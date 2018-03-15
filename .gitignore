@@ -1,0 +1,17 @@
+# Latex
+
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.log
+*.out
+*.run.xml
+
+# Python
+*.pyc
+
+# Vim
+*.swp
+*.swo
+*.sw~
