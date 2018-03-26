@@ -1,6 +1,9 @@
 # A naive bayes sentiment classifier
 import sklearn.datasets
 import sklearn.feature_extraction
+import sklearn.naive_bayes
+import sklearn.model_selection
+import sklearn.metrics
 
 
 def read_data(filepath):
@@ -12,29 +15,31 @@ def read_data(filepath):
     X_counts = vectorizer.fit_transform(raw_data.data)
     tf_transformer = sklearn.feature_extraction.text.TfidfTransformer(use_idf=False).fit(X_counts)
     X_tf = tf_transformer.transform(X_counts)
+    y = raw_data.target
 
-    return (0,0)
-    
+    return (X_tf, y, raw_data.target_names)
 
 
-
-def train_nb(training_documents):
-    # ...
+def train_nb(X_train, y_train):
     # return the data you need for classifying new instances
-    return 0
+    clf = sklearn.naive_bayes.MultinomialNB().fit(X_train, y_train)
+    return clf
 
 
-def classify_nb(classifier_data, document):
-    # ...
+def classify_nb(clf, X):
     # return the prediction of the classifier
-    return 0
+    return clf.predict(X)
 
 
 def main():
     filepath = "./data/txt_sentoken"
-    train, test = read_data(filepath)
-    probabilities = train_nb(test)
-    results = classify_nb(probabilities, test)
+    X, y, target_names = read_data(filepath)
+    X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(X, y, test_size=0.10)
+    nb_clf = train_nb(X_train, y_train)
+    y_pred = classify_nb(nb_clf, X_test)
+
+    clf_report = sklearn.metrics.classification_report(y_test, y_pred, target_names=target_names)
+    print(clf_report)
 
 
 if __name__ == "__main__":
