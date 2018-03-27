@@ -1,0 +1,68 @@
+\section*{Manual}
+
+I'm using Python 3.6.4. The environment is Arch linux. The code uses a lot of
+Scikit Learn. The code is contained in one script called \verb|main.py|. It's
+assumed the datasets are found in the directories \verb|big_data| and
+\verb|small_data| which are situated in the same directory as the main script.
+
+The input is by default the big data set, but the small dataset can also be
+used. The small dataset can just be extracted in to the \verb|small_data|
+folder, but because of my implementation details I decided to combine the test
+and train data in the big data set into one folder.
+
+The only output is print to the terminal. At the end a Scikit Learn (hereafter
+referred to as sklearn) performance report is printed.
+
+
+\section*{Implementation}
+
+As mentioned in the previous section, the code makes heavy use of sklearn. The
+datasets are read using sklearn \verb|load_files| and text extraction methods.
+The dataset is then randomly divided into train and test sets, again using
+sklearn methods. Finally we create a sklearn \textbf{multinomial naive bayes}
+classifier, train it and get a sklearn performance report with it.
+
+
+\section*{Results}
+
+Because of the random train/test division, the results will vary a bit. The
+following results are just one of the results, but they should be
+representative of the general performance.
+
+\begin{table}[H]
+  \centering
+  \caption{Big data results table}\label{tab:big}
+  \begin{tabular}{c c c c c}
+    \toprule
+    &   precision   &   recall  &   f1-score    &   support \\
+    \midrule
+    neg         &   0.84        &   0.90    &   0.87        &   2559 \\
+    pos         &   0.88        &   0.82    &   0.85        &   2441 \\
+    avg / total &   0.86        &   0.86    &   0.86        &   5000 \\
+    \bottomrule
+
+  \end{tabular}
+\end{table}
+
+
+\begin{table}[H]
+  \centering
+  \caption{Small data results table}\label{tab:small}
+  \begin{tabular}{c c c c c}
+    \toprule
+    &   precision   &   recall  &   f1-score    &   support \\
+    \midrule
+    neg         &   0.56        &   1.00    &   0.72        &    96 \\
+    pos         &   1.00        &   0.29    &   0.45        &   104 \\
+    avg / total &   0.79        &   0.63    &   0.58        &   200 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+What we can quickly see is that the big data results seem a more uniform. One
+reason is probably the bigger size of the data, which smoothes out the results.
+Both sets seem to have a better f1-score (a combination of precision and
+recall) for the negative samples, with a better recall on negative samples and
+a better precision on positive samples. It's good to keep in mind however that
+the differences for the big data are very small, and quite large for the small
+data.

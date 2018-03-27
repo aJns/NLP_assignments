@@ -6,10 +6,10 @@ import sklearn.model_selection
 import sklearn.metrics
 
 
-def read_data(filepath):
+def read_data(filepath, encoding="ASCII"):
     # read the data and transform it into a form that sklearn NB can use
     # use sklearn.datasets.load_files and sklearn.feature_extraction.text.CountVectorizer
-    raw_data = sklearn.datasets.load_files(filepath, encoding="ASCII",
+    raw_data = sklearn.datasets.load_files(filepath, encoding=encoding,
             load_content=True, shuffle=True)
     vectorizer = sklearn.feature_extraction.text.CountVectorizer()
     X_counts = vectorizer.fit_transform(raw_data.data)
@@ -18,6 +18,12 @@ def read_data(filepath):
     y = raw_data.target
 
     return (X_tf, y, raw_data.target_names)
+
+
+def get_sets(filepath, encoding="ASCII"):
+    X, y, target_names = read_data(filepath, encoding=encoding)
+    X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(X, y, test_size=0.10)
+    return X_train, X_test, y_train, y_test, target_names
 
 
 def train_nb(X_train, y_train):
@@ -32,9 +38,19 @@ def classify_nb(clf, X):
 
 
 def main():
-    filepath = "./data/txt_sentoken"
-    X, y, target_names = read_data(filepath)
-    X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(X, y, test_size=0.10)
+    user_input = input("Use big data set? [Y]/n:  ")
+    if user_input == "n":
+        print("Using the small data set")
+        filepath = "./small_data/txt_sentoken"
+        encoding = "ASCII"
+    else:
+        print("Using the big data set")
+        filepath = "./big_data/combined_data"
+        encoding = "utf-8"
+        
+    X_train, X_test, y_train, y_test, target_names = get_sets(filepath, encoding)
+    print("X_train shape:", X_train.shape)
+    print("X_test shape:", X_test.shape)
     nb_clf = train_nb(X_train, y_train)
     y_pred = classify_nb(nb_clf, X_test)
 
