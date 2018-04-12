@@ -122,13 +122,16 @@ if __name__ == "__main__":
     data_loc = "../data/"
     speech = read_files(data_loc)
 
-    print("Training classifier")
-    import classify
-    cls = classify.train_classifier(speech.trainX, speech.trainy)
+    import numpy
+    # for C in [0.001, 0.01, 0.1, 1, 10, 100, 1000, 10000]:
+    for C in [1]:
+        print("Training classifier")
+        import classify
+        cls = classify.train_classifier(speech.trainX, speech.trainy, C)
 
-    print("Evaluating")
-    classify.evaluate(speech.trainX, speech.trainy, cls)
-    classify.evaluate(speech.devX, speech.devy, cls)
+        print("Evaluating")
+        # classify.evaluate(speech.trainX, speech.trainy, cls)
+        classify.evaluate(speech.devX, speech.devy, cls)
 
     print("Writing Kaggle pred file")
     write_pred_kaggle_file(cls, data_loc + "/speech-pred.csv", speech)
