@@ -7,7 +7,6 @@ def train_classifier(X, y, C=1):
     """Train a classifier using the given training data.
     Trains a logistic regression on the input data with default parameters.
     """
-    print("  C: ", C)
     cls = LogisticRegression(C=C)
     cls.fit(X, y)
     return cls

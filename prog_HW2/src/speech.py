@@ -36,7 +36,7 @@ def read_files(data_loc):
     print(len(speech.unlabeled_fnames))
 
     print("-- transforming data and labels")
-    speech = transform_data(speech)
+    speech = transform_data(speech, (1,2))
 
     from sklearn import preprocessing
     speech.le = preprocessing.LabelEncoder()
@@ -110,15 +110,26 @@ def write_pred_kaggle_file(cls, outfname, speech):
         f.write(fname + ',' + labels[i] + '\n')
     f.close()
 
-def transform_data(speech, ngram_range=(1,1)):
+def transform_data(speech, ngram_range=(1,1), use_tf=False):
     print("-- Transforming data...")
-    from sklearn.feature_extraction.text import CountVectorizer
-    speech.count_vect = CountVectorizer(tokenizer=lambda doc: doc, lowercase=False, ngram_range=ngram_range)
-    speech.trainX = speech.count_vect.fit_transform(speech.train_data)
 
+    if use_tf:
+        from sklearn.feature_extraction.text import TfidfVectorizer
+        speech.count_vect = TfidfVectorizer(tokenizer=lambda doc: doc, lowercase=False,
+                ngram_range=ngram_range)
+    else:
+        from sklearn.feature_extraction.text import CountVectorizer
+        speech.count_vect = CountVectorizer(tokenizer=lambda doc: doc, lowercase=False,
+                ngram_range=ngram_range)
+
+    import numpy
+    speech.count_vect.fit(numpy.append(speech.train_data,speech.unlabeled_data))
+
+    speech.trainX = speech.count_vect.transform(speech.train_data)
     speech.devX = speech.count_vect.transform(speech.dev_data)
     speech.testX = speech.count_vect.transform(speech.test_data)
     speech.unlabeledX = speech.count_vect.transform(speech.unlabeled_data)
+
 
     return speech
 
@@ -127,31 +138,35 @@ if __name__ == "__main__":
     data_loc = "../data/"
     speech = read_files(data_loc)
 
-    best_acc = 0
-    best_ngram = (1,1)
-    ngram_results = dict()
-    for ngram_range in [(1,2), (1,3), (1,4), (2,2), (2,3), (2,4), (3,3), (3,4), (4,4)]:
-        speech = transform_data(speech, ngram_range)
+    # best_acc = 0
+    # best_ngram = (1,1)
+    # ngram_results = dict()
+    # # for ngram_range in [(1,1), (1,2), (1,3), (1,4), (2,2), (2,3), (2,4)]:
+    # for ngram_range in [(1,2)]:
+    #     speech = transform_data(speech, ngram_range)
 
-        # for C in [0.001, 0.01, 0.1, 1, 10, 100, 1000, 10000]:
-        for C in [1]:
-            print("Training classifier")
-            import classify
-            cls = classify.train_classifier(speech.trainX, speech.trainy, C)
+    #     # for C in [0.001, 0.01, 0.1, 1, 10, 100, 1000, 10000]:
+    #     for C in [1]:
+    #         print("Training classifier")
+    #         import classify
+    #         cls = classify.train_classifier(speech.trainX, speech.trainy, C)
 
-            print("Evaluating")
-            # classify.evaluate(speech.trainX, speech.trainy, cls)
-            acc = classify.evaluate(speech.devX, speech.devy, cls)
-            if acc > best_acc:
-                best_acc = acc
-                best_ngram = ngram_range
-            ngram_results[ngram_range] = acc
+    #         print("Evaluating")
+    #         # classify.evaluate(speech.trainX, speech.trainy, cls)
+    #         acc = classify.evaluate(speech.devX, speech.devy, cls)
+    #         if acc > best_acc:
+    #             best_acc = acc
+    #             best_ngram = ngram_range
+    #         ngram_results[ngram_range] = acc
 
-    print("Best accuracy: ", best_acc)
-    print("Best ngram range: ", best_ngram)
+    # print("Best accuracy: ", best_acc)
+    # print("Best ngram range: ", best_ngram)
 
-    import util
-    util.print_dict(ngram_results)
+    # import util
+    # util.print_dict(ngram_results)
+
+    import experiments
+    cls = experiments.expand_data(speech)
 
     print("Writing Kaggle pred file")
     write_pred_kaggle_file(cls, data_loc + "/speech-pred.csv", speech)
