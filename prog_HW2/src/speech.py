@@ -28,22 +28,15 @@ def read_files(data_loc):
     print(len(speech.dev_data))
 
     print ("-- test data")
-    test_data, test_fnames = read_unlabeled(data_loc,'test')
-    print (len(test_fnames))
+    speech.test_data, speech.test_fnames = read_unlabeled(data_loc,'test')
+    print (len(speech.test_fnames))
 
     print("-- unlabeled data")
-    unlabeled_data, unlabeled_fnames = read_unlabeled(data_loc, 'unlabeled')
-    print(len(unlabeled_fnames))
+    speech.unlabeled_data, speech.unlabeled_fnames = read_unlabeled(data_loc, 'unlabeled')
+    print(len(speech.unlabeled_fnames))
 
     print("-- transforming data and labels")
-    from sklearn.feature_extraction.text import CountVectorizer
-    speech.count_vect = CountVectorizer(tokenizer=lambda doc: doc, lowercase=False)
-    speech.trainX = speech.count_vect.fit_transform(speech.train_data)
-
-    speech.devX = speech.count_vect.transform(speech.dev_data)
-    speech.testX = speech.count_vect.transform(test_data)
-    speech.test_fnames = test_fnames
-    speech.unlabeledX = speech.count_vect.transform(unlabeled_data)
+    speech = transform_data(speech)
 
     from sklearn import preprocessing
     speech.le = preprocessing.LabelEncoder()
@@ -117,21 +110,48 @@ def write_pred_kaggle_file(cls, outfname, speech):
         f.write(fname + ',' + labels[i] + '\n')
     f.close()
 
+def transform_data(speech, ngram_range=(1,1)):
+    print("-- Transforming data...")
+    from sklearn.feature_extraction.text import CountVectorizer
+    speech.count_vect = CountVectorizer(tokenizer=lambda doc: doc, lowercase=False, ngram_range=ngram_range)
+    speech.trainX = speech.count_vect.fit_transform(speech.train_data)
+
+    speech.devX = speech.count_vect.transform(speech.dev_data)
+    speech.testX = speech.count_vect.transform(speech.test_data)
+    speech.unlabeledX = speech.count_vect.transform(speech.unlabeled_data)
+
+    return speech
+
 if __name__ == "__main__":
     print("Reading data")
     data_loc = "../data/"
     speech = read_files(data_loc)
 
-    import numpy
-    # for C in [0.001, 0.01, 0.1, 1, 10, 100, 1000, 10000]:
-    for C in [1]:
-        print("Training classifier")
-        import classify
-        cls = classify.train_classifier(speech.trainX, speech.trainy, C)
+    best_acc = 0
+    best_ngram = (1,1)
+    ngram_results = dict()
+    for ngram_range in [(1,2), (1,3), (1,4), (2,2), (2,3), (2,4), (3,3), (3,4), (4,4)]:
+        speech = transform_data(speech, ngram_range)
 
-        print("Evaluating")
-        # classify.evaluate(speech.trainX, speech.trainy, cls)
-        classify.evaluate(speech.devX, speech.devy, cls)
+        # for C in [0.001, 0.01, 0.1, 1, 10, 100, 1000, 10000]:
+        for C in [1]:
+            print("Training classifier")
+            import classify
+            cls = classify.train_classifier(speech.trainX, speech.trainy, C)
+
+            print("Evaluating")
+            # classify.evaluate(speech.trainX, speech.trainy, cls)
+            acc = classify.evaluate(speech.devX, speech.devy, cls)
+            if acc > best_acc:
+                best_acc = acc
+                best_ngram = ngram_range
+            ngram_results[ngram_range] = acc
+
+    print("Best accuracy: ", best_acc)
+    print("Best ngram range: ", best_ngram)
+
+    import util
+    util.print_dict(ngram_results)
 
     print("Writing Kaggle pred file")
     write_pred_kaggle_file(cls, data_loc + "/speech-pred.csv", speech)
