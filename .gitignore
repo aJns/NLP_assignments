@@ -8,6 +8,9 @@
 *.out
 *.run.xml
 
+# output
+assignment.pdf
+
 # Python
 *.pyc
 
