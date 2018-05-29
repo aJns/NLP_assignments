@@ -1,0 +1,50 @@
+-----------------------------------------------------------------------------
+                   MaltOptimizer 1.0
+-----------------------------------------------------------------------------
+         Miguel Ballesteros* and Joakim Nivre**
+
+          *Complutense University of Madrid (Spain)  
+                **Uppsala University (Sweden)   
+-----------------------------------------------------------------------------
+PHASE 1: DATA ANALYSIS
+In order to optimize MaltParser for your training set, MaltOptimizer will 
+first analyze the data and set some basic parameters.
+-----------------------------------------------------------------------------
+DATA VALIDATION
+Validating the CoNLL data format ...  (may take a few minutes)
+Your training set is not in valid CoNLL format. MaltOptimizer will
+terminate. Please consult the logfile /home/nikulaj/skool/NLP_assignments/prog_HW3/parser/MaltOptimizer-1.0.3/logValidationFile.txt
+to find out what needs to be fixed.
+The Training set path used in Phase 1 is not the same as you are trying to use in Phase 2
+-----------------------------------------------------------------------------
+                   MaltOptimizer 1.0
+-----------------------------------------------------------------------------
+         Miguel Ballesteros* and Joakim Nivre**
+
+          *Complutense University of Madrid (Spain)  
+                **Uppsala University (Sweden)   
+-----------------------------------------------------------------------------
+PHASE 2: PARSING ALGORITHM SELECTION
+
+MaltOptimizer found in Phase 1 that your training set contains
+a substantial amount of non-projective trees and will therefore 
+only try non-projective algorithms.
+
+Testing the non-projective algorithms ...
+
+               CovingtonNonProjective --vs-- StackLazy
+                          /                     \
+                         /                       \
+                        /                         \
+                       /                           \
+                      /                             \
+                     /                               \
+                    /                                 \
+               NivreEager+PP             StackEager --vs-- StackProjective+PP
+                    |                                  |
+                    |                                  |
+         CovingtonProjective+PP                 NivreStandard+PP
+
+
+Testing the Covington-Non-Projective algorithm ...
+Could not open gold standard file kaist_train_test20.conll
