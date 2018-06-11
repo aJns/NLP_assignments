@@ -1,0 +1,1 @@
+data/kor-word2vec-hannanum-200.bin filter=lfs diff=lfs merge=lfs -text
